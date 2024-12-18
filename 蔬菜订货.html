@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>蔬菜订货</title>
+<style>
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th, td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+    font-size: 16px;
+  }
+  button {
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  button + button {
+    margin-left: 10px;
+  }
+  @media (max-width: 600px) {
+    table {
+      font-size: 14px;
+    }
+  }
+  /* 添加顶部和底部按钮的样式 */
+  #gotoTop, #gotoBottom {
+    display: none;
+    position: fixed;
+    right: 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 1000;
+  }
+  #gotoTop {
+    top: 20px;
+  }
+  #gotoBottom {
+    bottom: 20px;
+  }
+</style>
+</head>
+<body>
+<button onclick="newOrder()">新建订货单</button>
+
+<h2 id="date">加载日期...</h2>
+
+<table id="produce-table">
+  <tr>
+    <th>蔬菜</th>
+    <th>数量</th>
+    <th>操作</th>
+  </tr>
+  <!-- 动态添加行 -->
+</table>
+
+
+
+
+<button onclick="scrollToTop()" id="gotoTop">^ 顶部</button>
+<button onclick="scrollToBottom()" id="gotoBottom">底部 v</button>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const today = new Date();
+  const dateString = today.toISOString().split('T')[0];
+  document.getElementById('date').textContent = dateString;
+
+  // 常用蔬菜列表
+  const produceList = [
+    {name: '冬瓜', id:1},
+    {name: '南瓜', id:2},
+    {name: '青南瓜', id:3},
+    {name: '苦瓜', id:4},
+    {name: '生瓜', id:5},
+    {name: '黄瓜', id:6},
+    {name: '丝瓜', id:7},
+    {name: '板栗南瓜', id:8},
+    {name: '洋葱', id:9},
+    {name: '薄皮青椒', id:10},
+    {name: '西红柿', id:11},
+    {name: '上海青', id:12},
+    {name: '黄玉米', id:13},
+    {name: '花玉米', id:14},
+    {name: '芹菜', id:15},
+    {name: '西芹', id:16},
+    {name: '水果萝卜', id:17},
+    {name: '胡萝卜', id:18},
+    {name: '袋装胡萝卜', id:19},
+    {name: '红萝卜', id:20},
+    {name: '白萝卜', id:21},
+    {name: '带泥胡萝卜', id:22},
+    {name: '大娃娃菜', id:23},
+    {name: '西兰花', id:24},
+    {name: '兰州散花', id:25},
+    {name: '毛豆', id:26},
+    {name: '生姜', id:27},
+    {name: '小葱', id:28},
+    {name: '大葱', id:29},
+    {name: '小香葱', id:30},
+    {name: '长茄子', id:31},
+    {name: '圆茄子', id:32},
+    {name: '青茄子', id:33},
+    {name: '线茄子', id:34},
+    {name: '空心菜', id:35},
+    {name: '毛白菜', id:36},
+    {name: '紫包菜', id:37},
+    {name: '苞菜', id:38},
+    {name: '大白菜', id:39},
+    {name: '黄芽大白菜', id:40},
+    {name: '香菜', id:41},
+    {name: '韭菜', id:42},
+    {name: '生菜', id:43},
+    {name: '菠菜', id:44},
+    {name: '红苋菜', id:45},
+    {name: '茼蒿', id:46},
+    {name: '苦菊', id:47},
+    {name: '小香芹', id:48},
+    {name: '红尖椒', id:49},
+    {name: '邹皮椒', id:50},
+    {name: '青线椒', id:51},
+    {name: '螺丝椒', id:52},
+    {name: '大红辣椒', id:53},
+    {name: '辣妹子辣椒', id:54},
+    {name: '紫薯', id:55},
+    {name: '扁豆', id:56},
+    {name: '四季豆', id:57},
+    {name: '荷兰豆', id:58},
+    {name: '豆角', id:59},
+    {name: '蚕豆米', id:60},
+    {name: '豌豆', id:61},
+    {name: '铁山药', id:62},
+    {name: '山药', id:63},
+    {name: '芥蓝', id:64},
+    {name: '蜜薯', id:65},
+    {name: '莴笋', id:66},
+    {name: '瓠子', id:67},
+    {name: '平菇', id:68},
+    {name: '香菇', id:69},
+    {name: '白玉菇', id:70},
+    {name: '金针菇', id:71},
+    {name: '杏鲍菇', id:72},
+    {name: '盒装青豆苗', id:73},
+    {name: '袋装金针菇', id:74},
+    {name: '袋装杏鲍菇', id:75},
+    {name: '袋装海鲜菇', id:76},
+    {name: '莲藕', id:77},
+    {name: '蒜苗', id:78},
+    {name: '蒜头', id:79},
+    {name: '蒜子', id:80},
+    {name: '蒜苔', id:81},
+    {name: '蒜黄', id:82},
+    {name: '木耳菜', id:83},
+    {name: '茭白', id:84},
+    {name: '小土豆', id:85},
+    {name: '大土豆', id:86},
+    {name: '菜心', id:87},
+    {name: '秋葵', id:88},
+    {name: '油麦菜', id:89},
+    {name: '蒜子', id:90},
+    {name: '撇腊', id:91},
+    {name: '毛芋', id:92},
+    {name: '菊花心', id:93},
+    {name: '板栗', id:94},
+  ];
+
+  // 创建表格行
+  const table = document.getElementById('produce-table');
+  produceList.forEach(item => {
+    const row = table.insertRow();
+    const cell1 = row.insertCell(0);
+    const cell2 = row.insertCell(1);
+    const cell3 = row.insertCell(2);
+
+    cell1.textContent = item.name;
+    const storedQuantity = localStorage.getItem(`quantity-${item.id}`) || 0;
+    cell2.innerHTML = `<span id="quantity-${item.id}">${storedQuantity}</span>`;
+    cell3.innerHTML = `<button onclick="updateQuantity(${item.id}, true)">+</button><button onclick="updateQuantity(${item.id}, false)">-</button>`;
+  });
+});
+
+function updateQuantity(produceId, increment) {
+  const quantityElement = document.getElementById(`quantity-${produceId}`);
+  const currentQuantity = parseInt(quantityElement.textContent, 10);
+  const newQuantity = increment ? currentQuantity + 1 : currentQuantity - 1;
+  if (newQuantity >= 0) {
+    quantityElement.textContent = newQuantity;
+    localStorage.setItem(`quantity-${produceId}`, newQuantity);
+  }
+}
+
+function shareText() {
+  let textContent = '';
+  const date = document.getElementById('date').textContent;
+  textContent += '订货日期：' + date + '\n\n';
+
+  const rows = document.querySelectorAll('#produce-table tr:not(:first-child)');
+  rows.forEach(row => {
+    const nameCell = row.cells[0];
+    const quantityCell = row.cells[1];
+    const quantity = parseInt(quantityCell.querySelector('span').textContent, 10);
+    if (quantity > 0) {
+      textContent += nameCell.textContent + '\t' + quantity + '\n';
+    }
+  });
+
+  if (textContent) {
+    navigator.clipboard.writeText(textContent.trim()).then(() => {
+      alert('已复制到剪贴板');
+    }).catch(err => {
+      console.error('复制失败:', err);
+    });
+  } else {
+    alert('没有需要复制的内容');
+  }
+}
+
+// 新建订货单的函数
+function newOrder() {
+  const produceList = [
+    {name: '冬瓜', id:1},
+    {name: '南瓜', id:2},
+    {name: '青南瓜', id:3},
+    {name: '苦瓜', id:4},
+    {name: '生瓜', id:5},
+    {name: '黄瓜', id:6},
+    {name: '丝瓜', id:7},
+    {name: '板栗南瓜', id:8},
+    {name: '洋葱', id:9},
+    {name: '薄皮青椒', id:10},
+    {name: '西红柿', id:11},
+    {name: '上海青', id:12},
+    {name: '黄玉米', id:13},
+    {name: '花玉米', id:14},
+    {name: '芹菜', id:15},
+    {name: '西芹', id:16},
+    {name: '水果萝卜', id:17},
+    {name: '胡萝卜', id:18},
+    {name: '袋装胡萝卜', id:19},
+    {name: '红萝卜', id:20},
+    {name: '白萝卜', id:21},
+    {name: '带泥胡萝卜', id:22},
+    {name: '大娃娃菜', id:23},
+    {name: '西兰花', id:24},
+    {name: '兰州散花', id:25},
+    {name: '毛豆', id:26},
+    {name: '生姜', id:27},
+    {name: '小葱', id:28},
+    {name: '大葱', id:29},
+    {name: '小香葱', id:30},
+    {name: '长茄子', id:31},
+    {name: '圆茄子', id:32},
+    {name: '青茄子', id:33},
+    {name: '线茄子', id:34},
+    {name: '空心菜', id:35},
+    {name: '毛白菜', id:36},
+    {name: '紫包菜', id:37},
+    {name: '苞菜', id:38},
+    {name: '大白菜', id:39},
+    {name: '黄芽大白菜', id:40},
+    {name: '香菜', id:41},
+    {name: '韭菜', id:42},
+    {name: '生菜', id:43},
+    {name: '菠菜', id:44},
+    {name: '红苋菜', id:45},
+    {name: '茼蒿', id:46},
+    {name: '苦菊', id:47},
+    {name: '小香芹', id:48},
+    {name: '红尖椒', id:49},
+    {name: '邹皮椒', id:50},
+    {name: '青线椒', id:51},
+    {name: '螺丝椒', id:52},
+    {name: '大红辣椒', id:53},
+    {name: '辣妹子辣椒', id:54},
+    {name: '紫薯', id:55},
+    {name: '扁豆', id:56},
+    {name: '四季豆', id:57},
+    {name: '荷兰豆', id:58},
+    {name: '豆角', id:59},
+    {name: '蚕豆米', id:60},
+    {name: '豌豆', id:61},
+    {name: '铁山药', id:62},
+    {name: '山药', id:63},
+    {name: '芥蓝', id:64},
+    {name: '蜜薯', id:65},
+    {name: '莴笋', id:66},
+    {name: '瓠子', id:67},
+    {name: '平菇', id:68},
+    {name: '香菇', id:69},
+    {name: '白玉菇', id:70},
+    {name: '金针菇', id:71},
+    {name: '杏鲍菇', id:72},
+    {name: '盒装青豆苗', id:73},
+    {name: '袋装金针菇', id:74},
+    {name: '袋装杏鲍菇', id:75},
+    {name: '袋装海鲜菇', id:76},
+    {name: '莲藕', id:77},
+    {name: '蒜苗', id:78},
+    {name: '蒜头', id:79},
+    {name: '蒜子', id:80},
+    {name: '蒜苔', id:81},
+    {name: '蒜黄', id:82},
+    {name: '木耳菜', id:83},
+    {name: '茭白', id:84},
+    {name: '小土豆', id:85},
+    {name: '大土豆', id:86},
+    {name: '菜心', id:87},
+    {name: '秋葵', id:88},
+    {name: '油麦菜', id:89},
+    {name: '蒜子', id:90},
+    {name: '撇腊', id:91},
+    {name: '毛芋', id:92},
+    {name: '菊花心', id:93},
+    {name: '板栗', id:94},
+  ];
+
+  produceList.forEach(item => {
+    const quantityElement = document.getElementById(`quantity-${item.id}`);
+    quantityElement.textContent = 0;
+    localStorage.setItem(`quantity-${item.id}`, 0);
+  });
+  alert('订货单已重置');
+}
+
+// 跳转到顶部的函数
+function scrollToTop() {
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// 跳转到底部的函数
+function scrollToBottom() {
+  window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
+}
+
+// 监听页面滚动事件，显示或隐藏按钮
+window.onscroll = function() {
+  showScrollButtons();
+};
+
+function showScrollButtons() {
+  const gotoTop = document.getElementById("gotoTop");
+  const gotoBottom = document.getElementById("gotoBottom");
+
+  const scrollFromTop = window.pageYOffset || document.documentElement.scrollTop;
+  const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+  const documentHeight = document.documentElement.offsetHeight;
+
+  if (scrollFromTop > 20) {
+    gotoTop.style.display = "block";
+  } else {
+    gotoTop.style.display = "none";
+  }
+
+  // 显示底部按钮的条件是页面滚动超过三分之一
+  if (scrollFromTop + windowHeight > documentHeight / 3) {
+    gotoBottom.style.display = "block";
+  } else {
+    gotoBottom.style.display = "none";
+  }
+}
+</script>
+<button onclick="shareText()">复制订单</button>
+</body>
+</html>
